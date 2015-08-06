@@ -200,6 +200,7 @@ class XmlSitemapEntitiesSettingsForm extends ConfigFormBase implements Container
         }
       }
     }
+    \Drupal::state()->set('xmlsitemap_regenerate_needed', TRUE);
     parent::submitForm($form, $form_state);
   }
 }
