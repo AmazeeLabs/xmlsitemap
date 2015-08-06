@@ -2027,7 +2027,7 @@ function xmlsitemap_add_link_bundle_settings(array &$form, FormStateInterface $f
     '#type' => 'select',
     '#title' => t('Inclusion'),
     '#options' => xmlsitemap_get_status_options(),
-    '#default_value' => $bundle_info['status'],
+    '#default_value' => (int) $bundle_info['status'],
   );
   $form['xmlsitemap']['priority'] = array(
     '#type' => 'select',
