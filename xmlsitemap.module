@@ -1549,12 +1549,12 @@ function xmlsitemap_xmlsitemap_index_links($limit) {
     }
     try {
       $query = \Drupal::entityManager()->getStorage($entity_type_id)->getQuery();
-      $query->range(0, $limit);
-      if ($entity_type->get('type')) {
-        $query->condition('type', $entity_bundles, 'IN');
-      }
+      $query->condition('type', $entity_bundles, 'IN');
       $ids = $query->execute();
-      xmlsitemap_xmlsitemap_process_entity_links($entity_type_id, $ids);
+      while ($ids) {
+        $ids_part = array_splice($ids, 0, $limit);
+        xmlsitemap_xmlsitemap_process_entity_links($entity_type_id, $ids_part);
+      }
     }
     catch (QueryException $e) {
 
