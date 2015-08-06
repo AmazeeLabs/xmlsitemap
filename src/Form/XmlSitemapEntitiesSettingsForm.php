@@ -144,17 +144,18 @@ class XmlSitemapEntitiesSettingsForm extends ConfigFormBase implements Container
             '#markup' => SafeMarkup::checkPlain($bundle_info['label']),
           ),
           'operations' => [
-          '#type' => 'operations',
-          '#links' => [
-          'configure' => [
-          'title' => $this->t('Configure'),
-          'url' => Url::fromRoute('xmlsitemap.admin_settings_bundle', array(
-                  'entity' => $entity_type_id,
-                  'bundle' => $bundle,
-                  'query' => drupal_get_destination(),
-                )),
-          ]
-          ]
+            '#type' => 'operations',
+            '#links' => [
+            'configure' => [
+              'title' => $this->t('Configure'),
+              'url' => Url::fromRoute('xmlsitemap.admin_settings_bundle', [
+                'entity' => $entity_type_id,
+                'bundle' => $bundle,
+              ], [
+                'query' => drupal_get_destination(),
+              ]),
+              ]
+            ]
           ],
         );
         $form['settings'][$entity_type_id]['types']['#default_value'][$bundle] = xmlsitemap_link_bundle_check_enabled($entity_type_id, $bundle);
