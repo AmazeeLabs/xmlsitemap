@@ -1,7 +1,7 @@
 xmlsitemap_custom.list:
   path: '/admin/config/search/xmlsitemap/custom'
   defaults:
-    _content: '\Drupal\xmlsitemap_custom\Controller\XmlSitemapCustomListController::render'
+    _controller: '\Drupal\xmlsitemap_custom\Controller\XmlSitemapCustomListController::render'
     _title: 'Custom links'
   requirements:
     _permission: 'administer xmlsitemap'
