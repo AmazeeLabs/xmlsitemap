@@ -354,6 +354,12 @@ function xmlsitemap_settings_form($form, &$form_state) {
     '#default_value' => variable_get('xmlsitemap_disable_cron_regeneration', 0),
     '#description' => t('This can be disabled if other methods are being used to generate the sitemap files, like <em>drush xmlsitemap-regenerate</em>.'),
   );
+  $form['advanced']['xmlsitemap_language_fallback'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Include links to untranslated entities to localized sitemaps'),
+    '#description' => t('If the option disabled, it will not include links to localized sitemaps even the language fallback enabled.'),
+    '#default_value' => variable_get('xmlsitemap_language_fallback', TRUE),
+  );
   $form['advanced']['xmlsitemap_output_elements'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Enable or disable the individual @loc elements from output', array('@loc' => '<loc>')),

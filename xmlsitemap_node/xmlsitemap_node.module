@@ -39,8 +39,7 @@ function xmlsitemap_node_xmlsitemap_index_links($limit) {
 function xmlsitemap_node_xmlsitemap_process_node_links(array $nids) {
   $nodes = node_load_multiple($nids);
   foreach ($nodes as $node) {
-    $link = xmlsitemap_node_create_link($node);
-    xmlsitemap_link_save($link, array($link['type'] => $node));
+    xmlsitemap_node_node_update($node);
   }
 }
 
@@ -56,7 +55,16 @@ function xmlsitemap_node_node_insert(stdClass $node) {
  */
 function xmlsitemap_node_node_update(stdClass $node) {
   $link = xmlsitemap_node_create_link($node);
-  xmlsitemap_link_save($link, array($link['type'] => $node));
+  if (!empty($link['languages'])) {
+    foreach ($link['languages'] as $lang) {
+      $lang_link = $link;
+      $lang_link['language'] = $lang;
+      xmlsitemap_link_save($lang_link, array($link['type'] => $node));
+    }
+  }
+  else {
+    xmlsitemap_link_save($link, array($link['type'] => $node));
+  }
 }
 
 /**
@@ -204,7 +212,10 @@ function xmlsitemap_node_create_link(stdClass $node) {
   $node->xmlsitemap['loc'] = $uri['path'];
   $node->xmlsitemap['lastmod'] = count($timestamps) ? max($timestamps) : 0;
   $node->xmlsitemap['access'] = $node->nid ? xmlsitemap_node_view_access($node, drupal_anonymous_user()) : 1;
-  $node->xmlsitemap['language'] = isset($node->language) ? $node->language : LANGUAGE_NONE;
+  // Fetches the languages for the sitemap link / links.
+  $language = isset($node->language) ? $node->language : LANGUAGE_NONE;
+  $node->xmlsitemap['language'] = $language;
+  $node->xmlsitemap['languages'] = xmlsitemap_get_entity_languages('node', $node, $language);
 
   return $node->xmlsitemap;
 }

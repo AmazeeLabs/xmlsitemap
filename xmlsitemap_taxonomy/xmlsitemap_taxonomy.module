@@ -49,8 +49,7 @@ function xmlsitemap_taxonomy_xmlsitemap_index_links($limit) {
 function xmlsitemap_taxonomy_xmlsitemap_process_taxonomy_term_links(array $tids) {
   $terms = taxonomy_term_load_multiple($tids);
   foreach ($terms as $term) {
-    $link = xmlsitemap_taxonomy_create_link($term);
-    xmlsitemap_link_save($link, array($link['type'] => $term));
+    xmlsitemap_taxonomy_term_update($term);
   }
 }
 
@@ -106,8 +105,7 @@ function xmlsitemap_taxonomy_vocabulary_update(stdClass $vocabulary) {
  * Implements hook_taxonomy_term_insert() {
  */
 function xmlsitemap_taxonomy_term_insert(stdClass $term) {
-  $link = xmlsitemap_taxonomy_create_link($term);
-  xmlsitemap_link_save($link, array($link['type'] => $term));
+  xmlsitemap_taxonomy_term_update($term);
 }
 
 /**
@@ -115,7 +113,16 @@ function xmlsitemap_taxonomy_term_insert(stdClass $term) {
  */
 function xmlsitemap_taxonomy_term_update(stdClass $term) {
   $link = xmlsitemap_taxonomy_create_link($term);
-  xmlsitemap_link_save($link, array($link['type'] => $term));
+  if (!empty($link['languages'])) {
+    foreach ($link['languages'] as $lang) {
+      $lang_link = $link;
+      $lang_link['language'] = $lang;
+      xmlsitemap_link_save($lang_link, array($link['type'] => $term));
+    }
+  }
+  else {
+    xmlsitemap_link_save($link, array($link['type'] => $term));
+  }
 }
 
 /**
@@ -175,7 +182,10 @@ function xmlsitemap_taxonomy_create_link(stdClass &$term) {
   // @todo How can/should we check taxonomy term access?
   $term->xmlsitemap['loc'] = $uri['path'];
   $term->xmlsitemap['access'] = 1;
-  $term->xmlsitemap['language'] = isset($term->language) ? $term->language : LANGUAGE_NONE;
+  // Fetches the languages for the sitemap link / links.
+  $language = isset($term->language) ? $term->language : LANGUAGE_NONE;
+  $term->xmlsitemap['language'] = $language;
+  $term->xmlsitemap['languages'] = xmlsitemap_get_entity_languages('taxonomy_term', $term, $language);
 
   return $term->xmlsitemap;
 }

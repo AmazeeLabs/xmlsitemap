@@ -1,0 +1,63 @@
+<?php
+
+/**
+ * @file
+ * Install, update and uninstall functions for the xmlsitemap_i18n module.
+ *
+ * @ingroup xmlsitemap
+ */
+
+/**
+ * Implements hook_install().
+ *
+ * If there are any languages enabled, install a sitemap for each, and delete
+ * the default sitemap (created by xmlsitemap) with no language context.
+ */
+function xmlsitemap_i18n_install() {
+  if (module_exists('locale') && ($languages = array_keys(locale_language_list()))) {
+
+    // Delete the default sitemap with no language context. It should be
+    // removed so that it doesn't conflict with the to-be-created sitemap for
+    // the default language.
+    $context = array();
+    db_delete('xmlsitemap_sitemap')
+      ->condition('context', serialize($context))
+      ->execute();
+
+    // Add a sitemap for each language.
+    foreach ($languages as $language) {
+      $context = array('language' => $language);
+      db_insert('xmlsitemap_sitemap')
+        ->fields(array(
+          'smid' => xmlsitemap_sitemap_get_context_hash($context),
+          'context' => serialize($context),
+        ))
+        ->execute();
+    }
+  }
+}
+
+/**
+ * Implements hook_uninstall().
+ *
+ * Delete sitemaps related to languages and set 1 default sitemap.
+ */
+function xmlsitemap_i18n_uninstall() {
+  if (module_exists('locale') && ($languages = array_keys(locale_language_list()))) {
+    // Delete sitemap for each language.
+    foreach ($languages as $language) {
+      $context = array('language' => $language);
+      db_delete('xmlsitemap_sitemap')
+        ->condition('context', serialize($context))
+        ->execute();
+    }
+
+    // Add default sitemap.
+    db_insert('xmlsitemap_sitemap')
+      ->fields(array(
+        'smid' => xmlsitemap_sitemap_get_context_hash($context),
+        'context' => serialize($context),
+      ))
+      ->execute();
+  }
+}
